@@ -1,12 +1,12 @@
-import { Stack, Typography } from "@mui/material";
+import { Box, Stack, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { darkTheme } from "../App";
 
 // fake data generator
 const getItems = (count, offset = 0) =>
   Array.from({ length: count }, (v, k) => k).map(k => ({
     id: `item-${k + offset}-${new Date().getTime()}`,
-    content: `item ${k + offset}`,
     heading: 'Write a blogpost for DAOHelper',
     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse varius enim in er'
   }));
@@ -40,32 +40,31 @@ const grid = 8;
 const getItemStyle = (isDragging, draggableStyle) => ({
   // some basic styles to make the items look a bit nicer
   userSelect: "none",
-  padding: grid * 2,
+  //padding: grid * 2,
   margin: `0 0 ${grid}px 0`,
 
   // change background colour if dragging
-  background: isDragging ? "lightgreen" : "grey",
+  //background: isDragging ? "lightgreen" : "grey",
 
   // styles we need to apply on draggables
   ...draggableStyle
 });
 const getListStyle = isDraggingOver => ({
   //background: isDraggingOver ? "lightblue" : "lightgrey",
-  padding: grid,
-  width: 250,
-  borderLeft: 1,
-  borderRight: 1
+  //padding: grid,
+  width: 280,
 });
 
 function Board() {
 
-    const [state, setState] = useState([getItems(5), getItems(5, 10), getItems(5, 20), getItems(5, 30)]);
+    const [state, setState] = useState([getItems(3), getItems(3, 10), getItems(3, 20), getItems(3, 30)]);
     const columns = {
         0: {name: 'OPEN BOUNTIES', color: '#c4c4c4'},
-        1: {name: 'ASSIGNED IN PROGRESS', color: '#6071d3'},
+        1: {name: 'ASSIGNED/IN PROGRESS', color: '#6071d3'},
         2: {name: 'UNDER REVIEW', color: '#a416b9'},
         3: {name: 'CLOSE/REWARDED', color: '#04dbac'}
-    } 
+    }
+    const cardColorPalette = '#5a485f';
 
     function onDragEnd(result) {
         const { source, destination } = result;
@@ -94,9 +93,8 @@ function Board() {
 
     return (
         <div>
-            <div style={{ display: "flex" }}>
-            <DragDropContext onDragEnd={onDragEnd}>
-                <Stack direction={'row'}>
+            <Stack direction={'row'} spacing={1} justifyContent='space-between' sx={{width: '100%'}}>
+                <DragDropContext onDragEnd={onDragEnd}>
                     {state.map((el, ind) => (
                         <Droppable key={ind} droppableId={`${ind}`}>
                             {(provided, snapshot) => (
@@ -104,44 +102,52 @@ function Board() {
                                 ref={provided.innerRef}
                                 style={getListStyle(snapshot.isDraggingOver)}
                                 {...provided.droppableProps}
-                            >
-                                <Typography>{columns[ind].name}</Typography>
-                                {el.map((item, index) => (
-                                <Draggable
-                                    key={item.id}
-                                    draggableId={item.id}
-                                    index={index}
-                                >
-                                    {(provided, snapshot) => (
-                                    <div
-                                        ref={provided.innerRef}
-                                        {...provided.draggableProps}
-                                        {...provided.dragHandleProps}
-                                        style={getItemStyle(
-                                        snapshot.isDragging,
-                                        provided.draggableProps.style
-                                        )}
-                                    >
-                                        <div
-                                        style={{
-                                            display: "flex",
-                                            justifyContent: "space-around"
-                                        }}
+                            >   
+                                <Box sx={{background: cardColorPalette, borderTopLeftRadius: 10, borderTopRightRadius: 10, mb: 4}}>
+                                    <Box sx={{p: 2}}>
+                                        <Typography variant="body1" fontWeight={700} >{columns[ind].name}</Typography>
+                                    </Box>
+                                    <Box sx={{border: `2px solid ${columns[ind].color}`}}></Box>
+                                </Box>
+                                <Box sx={{borderLeft: 1, borderRight: 1, paddingX: 2, height: '100%', borderColor: darkTheme.palette.divider}}>
+                                    {el.map((item, index) => (
+                                        <Draggable
+                                            key={item.id}
+                                            draggableId={item.id}
+                                            index={index}
                                         >
-                                        {item.content}
-                                        </div>
-                                    </div>
-                                    )}
-                                </Draggable>
-                                ))}
+                                            {(provided, snapshot) => (
+                                            <div
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
+                                                style={getItemStyle(
+                                                snapshot.isDragging,
+                                                provided.draggableProps.style
+                                                )}
+                                            >
+                                            <Box sx={{borderTopLeftRadius: 10, borderTopRightRadius: 10, mb: 2}}>
+                                                <Box sx={{p: 2, background: cardColorPalette}}>
+                                                    <Typography variant="body2" fontWeight={700} sx={{mb:2}}>{item.heading}</Typography>
+                                                    <Typography variant="body2">{item.description}</Typography>
+                                                </Box>
+                                                <Stack direction={'row'} justifyContent='space-between' sx={{paddingY:1, paddingX:2, background: columns[ind].color, borderBottomLeftRadius: 10, borderBottomRightRadius: 10}}>
+                                                    <Typography variant="body2" fontWeight={700} sx={ind === 0 ? {color: 'black'} : {}} >Reward: 5</Typography>
+                                                    <Typography variant="body2" fontWeight={700} sx={ind === 0 ? {color: 'black'} : {}}>Time Left: 2 days</Typography>
+                                                </Stack>
+                                            </Box>
+                                            </div>
+                                            )}
+                                        </Draggable>
+                                    ))}
+                                </Box>
                                 {provided.placeholder}
                             </div>
                             )}
                         </Droppable>
                     ))}
-                </Stack>
-            </DragDropContext>
-            </div>
+                </DragDropContext>
+            </Stack>
         </div>
     );
 }

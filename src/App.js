@@ -3,7 +3,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import BountyBoard from './components/bounty';
 
 
-const darkTheme = createTheme({
+export const darkTheme = createTheme({
   palette: {
     mode: 'dark',
   },
